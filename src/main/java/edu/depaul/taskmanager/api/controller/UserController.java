@@ -28,7 +28,6 @@ public class UserController {
         this.registrationService = registrationService;
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/sessions")
     public ResponseEntity login(@RequestBody AuthenticationRequest authenticationRequest) {
         Optional<Session> optionalSession = authenticationService.login(authenticationRequest);
