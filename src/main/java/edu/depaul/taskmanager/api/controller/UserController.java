@@ -8,6 +8,7 @@ import edu.depaul.taskmanager.api.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ public class UserController {
         this.registrationService = registrationService;
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/sessions")
     public ResponseEntity login(@RequestBody AuthenticationRequest authenticationRequest) {
         Optional<Session> optionalSession = authenticationService.login(authenticationRequest);
