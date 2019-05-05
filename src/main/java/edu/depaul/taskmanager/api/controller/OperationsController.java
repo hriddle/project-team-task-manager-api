@@ -14,7 +14,7 @@ public class OperationsController {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @GetMapping("/users")
     public ResponseEntity helloWorld() {
         return ResponseEntity.ok(userRepository.findAll());

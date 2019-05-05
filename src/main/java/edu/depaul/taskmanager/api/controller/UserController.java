@@ -2,7 +2,6 @@ package edu.depaul.taskmanager.api.controller;
 
 import edu.depaul.taskmanager.api.model.AuthenticationRequest;
 import edu.depaul.taskmanager.api.model.Session;
-import edu.depaul.taskmanager.api.model.User;
 import edu.depaul.taskmanager.api.service.AuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
