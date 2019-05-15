@@ -9,10 +9,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,15 +29,15 @@ public class ListControllerTest {
     private String userId = "1234";
     private String listName = "To Do List";
     private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build();
+    private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
 
     @Before
     public void setUp() {
         taskListService = mock(TaskListService.class);
         listController = new ListController(taskListService);
 
-        when(taskListService.createPersonalList(any(), any())).thenReturn(
-                TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build()
-        );
+        when(taskListService.createPersonalList(any(), any())).thenReturn(list);
+        when(taskListService.getAllPersonalLists(any())).thenReturn(Arrays.asList(list, anotherList));
     }
 
     @Test
@@ -57,6 +61,33 @@ public class ListControllerTest {
 
     @Test
     public void createPersonalList_callsTaskListService() {
+        listController.createPersonalList(userId, listName, uriComponentsBuilder);
+        verify(taskListService).createPersonalList(userId, listName);
+    }
+
+    @Test
+    public void getPersonalLists_returns200_onSuccess() {
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getPersonalLists_returnsAllTaskLists_onSuccess() {
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        assertThat(response.getBody()).containsExactlyInAnyOrder(list, anotherList);
+    }
+
+    @Test
+    public void getPersonalLists_returnsAnEmptyResultList_whenNoneExist() {
+        reset(taskListService);
+        when(taskListService.getAllPersonalLists(any())).thenReturn(emptyList());
+
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        assertThat(response.getBody()).hasSize(0);
+    }
+
+    @Test
+    public void getPersonalLists_callsTaskListService() {
         listController.createPersonalList(userId, listName, uriComponentsBuilder);
         verify(taskListService).createPersonalList(userId, listName);
     }

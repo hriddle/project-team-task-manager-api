@@ -5,6 +5,8 @@ import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TaskListService {
 
@@ -16,7 +18,10 @@ public class TaskListService {
     }
 
     public TaskList createPersonalList(String userId, String listName) {
-        TaskList list = taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).build());
-        return list;
+        return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).build());
+    }
+
+    public List<TaskList> getAllPersonalLists(String userId) {
+        return taskListRepository.findByOwnerId(userId);
     }
 }

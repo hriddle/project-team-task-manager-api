@@ -5,6 +5,9 @@ import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,6 +23,7 @@ public class TaskListServiceTest {
     private String listId = "5678";
     private String listName = "To Do List";
     private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
+    private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
 
     @Before
     public void setUp() {
@@ -27,6 +31,7 @@ public class TaskListServiceTest {
         service = new TaskListService(repository);
 
         when(repository.save(any())).thenReturn(taskList);
+        when(repository.findByOwnerId(any())).thenReturn(Arrays.asList(taskList, anotherTaskList));
     }
 
     @Test
@@ -39,5 +44,17 @@ public class TaskListServiceTest {
     public void createPersonalList_returnsCreatedList() {
         TaskList createdList = service.createPersonalList(userId, listName);
         assertThat(createdList).isEqualTo(taskList);
+    }
+
+    @Test
+    public void getAllPersonalLists_callsRepository() {
+        service.getAllPersonalLists(userId);
+        verify(repository).findByOwnerId(userId);
+    }
+
+    @Test
+    public void getAllPersonalLists_returnsAList() {
+        List<TaskList> lists = service.getAllPersonalLists(userId);
+        assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList);
     }
 }
