@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -90,5 +91,18 @@ public class TaskListServiceTest {
         when(repository.save(any())).thenReturn(TaskList.newBuilder(taskList).withTasks(asList(task1, task2, taskToAdd)).build());
         List<Task> tasks = service.addTaskToList(listWithTasks.getId(), taskToAdd);
         assertThat(tasks).containsExactly(task1, task2, taskToAdd);
+    }
+
+    @Test
+    public void addTaskToList_canAddTaskToNullList() {
+        when(repository.findById(taskList.getId())).thenReturn(of(taskList));
+        service.addTaskToList(taskList.getId(), taskToAdd);
+        verify(repository).save(TaskList.newBuilder()
+                .withId(listId)
+                .withName(listName)
+                .withOwnerId(userId)
+                .withTasks(singletonList(taskToAdd))
+                .build()
+        );
     }
 }

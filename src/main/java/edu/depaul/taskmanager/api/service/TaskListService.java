@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @Service
 public class TaskListService {
@@ -39,7 +40,7 @@ public class TaskListService {
         Optional<TaskList> maybeTaskList = taskListRepository.findById(listId);
         if (maybeTaskList.isPresent()) {
             TaskList taskList = maybeTaskList.get();
-            List<Task> tasks = new ArrayList<>(taskList.getTasks());
+            List<Task> tasks = taskList.getTasks() != null ? new ArrayList<>(taskList.getTasks()) : new ArrayList<>();
             tasks.add(task);
             TaskList updatedTaskList = TaskList.newBuilder(taskList).withTasks(tasks).build();
             TaskList savedTaskList = taskListRepository.save(updatedTaskList);
