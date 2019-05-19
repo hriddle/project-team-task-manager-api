@@ -26,3 +26,24 @@ dependencies {
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+
+test {
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat 'full'
+        showExceptions true
+        showCauses true
+        showStackTraces true
+        afterSuite { desc, result ->
+            if (!desc.parent) {
+                println()
+                println "TEST RESULTS"
+                println "---------------"
+                println "Successful  ${result.successfulTestCount}"
+                println "Skipped     ${result.skippedTestCount}"
+                println "Failed      ${result.failedTestCount}"
+                println "---------------"
+            }
+        }
+    }
+}
