@@ -6,6 +6,7 @@ import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,5 +33,19 @@ public class TaskListService {
     public List<Task> getTasksInList(String listId) {
         Optional<TaskList> taskList = taskListRepository.findById(listId);
         return taskList.isPresent() ? taskList.get().getTasks() : emptyList();
+    }
+
+    public List<Task> addTaskToList(String listId, Task task) {
+        Optional<TaskList> maybeTaskList = taskListRepository.findById(listId);
+        if (maybeTaskList.isPresent()) {
+            TaskList taskList = maybeTaskList.get();
+            List<Task> tasks = new ArrayList<>(taskList.getTasks());
+            tasks.add(task);
+            TaskList updatedTaskList = TaskList.newBuilder(taskList).withTasks(tasks).build();
+            TaskList savedTaskList = taskListRepository.save(updatedTaskList);
+            return savedTaskList.getTasks();
+        } else {
+            return null;
+        }
     }
 }

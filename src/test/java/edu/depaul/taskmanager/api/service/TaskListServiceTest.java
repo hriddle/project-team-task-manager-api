@@ -6,10 +6,8 @@ import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static java.util.Arrays.asList;
 import static java.util.Optional.of;
@@ -29,11 +27,10 @@ public class TaskListServiceTest {
     private String listName = "To Do List";
     private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
     private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
-    private TaskList listWithTasks = TaskList.newBuilder(taskList)
-            .withTasks(asList(
-                    Task.newBuilder().withName("Task 1").build(),
-                    Task.newBuilder().withName("Task 2").build()))
-            .build();
+    private Task task1 = Task.newBuilder().withName("Task 1").build();
+    private Task task2 = Task.newBuilder().withName("Task 2").build();
+    private TaskList listWithTasks = TaskList.newBuilder(taskList).withTasks(asList(task1, task2)).build();
+    private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
 
     @Before
     public void setUp() {
@@ -79,5 +76,19 @@ public class TaskListServiceTest {
     public void getTasksInList_returnsAList() {
         List<Task> tasks = service.getTasksInList(listWithTasks.getId());
         assertThat(tasks).isEqualTo(listWithTasks.getTasks());
+    }
+
+    @Test
+    public void addTaskToList_updatesTaskListWithNewTask() {
+        service.addTaskToList(listWithTasks.getId(), taskToAdd);
+        TaskList updatedTaskList = TaskList.newBuilder(listWithTasks).withTasks(asList(task1, task2, taskToAdd)).build();
+        verify(repository).save(updatedTaskList);
+    }
+
+    @Test
+    public void addTaskToList_returnsListOfTasks() {
+        when(repository.save(any())).thenReturn(TaskList.newBuilder(taskList).withTasks(asList(task1, task2, taskToAdd)).build());
+        List<Task> tasks = service.addTaskToList(listWithTasks.getId(), taskToAdd);
+        assertThat(tasks).containsExactly(task1, task2, taskToAdd);
     }
 }

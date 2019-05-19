@@ -11,7 +11,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -32,10 +35,10 @@ public class ListControllerTest {
     private String listName = "To Do List";
     private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build();
     private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
-    private List<Task> tasks = asList(
-            Task.newBuilder().withName("Task 1").build(),
-            Task.newBuilder().withName("Task 2").build());
-    private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(tasks).build();
+    private Task task1 = Task.newBuilder().withName("Task 1").build();
+    private Task task2 = Task.newBuilder().withName("Task 2").build();
+    private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(asList(task1, task2)).build();
+    private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
 
     @Before
     public void setUp() {
@@ -44,7 +47,8 @@ public class ListControllerTest {
 
         when(taskListService.createPersonalList(any(), any())).thenReturn(list);
         when(taskListService.getAllPersonalLists(any())).thenReturn(asList(list, anotherList));
-        when(taskListService.getTasksInList(any())).thenReturn(tasks);
+        when(taskListService.getTasksInList(any())).thenReturn(asList(task1, task2));
+        when(taskListService.addTaskToList(any(), any())).thenReturn(asList(task1, task2, taskToAdd));
     }
 
     @Test
@@ -108,7 +112,7 @@ public class ListControllerTest {
     @Test
     public void getTasks_returnsAllTasks_onSuccess() {
         ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
-        assertThat(response.getBody()).isEqualTo(tasks);
+        assertThat(response.getBody()).isEqualTo(asList(task1, task2));
     }
 
     @Test
@@ -124,5 +128,23 @@ public class ListControllerTest {
     public void getTasks_callsTaskListService() {
         listController.getTasksInList(listWithTasks.getId());
         verify(taskListService).getTasksInList(listWithTasks.getId());
+    }
+
+    @Test
+    public void addTaskToList_returns201_onCreation() {
+        ResponseEntity<List<Task>> response = listController.addTaskToList(listWithTasks.getId(), taskToAdd);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    public void addTaskToList_returnsAllTasks_onSuccess() {
+        ResponseEntity<List<Task>> response = listController.addTaskToList(listWithTasks.getId(), taskToAdd);
+        assertThat(response.getBody()).isEqualTo(asList(task1, task2, taskToAdd));
+    }
+
+    @Test
+    public void addTaskToList_callsTaskListService() {
+        listController.addTaskToList(listWithTasks.getId(), taskToAdd);
+        verify(taskListService).addTaskToList(listWithTasks.getId(), taskToAdd);
     }
 }
