@@ -1,5 +1,6 @@
 package edu.depaul.taskmanager.api.controller;
 
+import edu.depaul.taskmanager.api.model.Task;
 import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.service.TaskListService;
 import org.junit.Before;
@@ -9,9 +10,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +32,10 @@ public class ListControllerTest {
     private String listName = "To Do List";
     private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build();
     private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
+    private List<Task> tasks = asList(
+            Task.newBuilder().withName("Task 1").build(),
+            Task.newBuilder().withName("Task 2").build());
+    private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(tasks).build();
 
     @Before
     public void setUp() {
@@ -37,7 +43,8 @@ public class ListControllerTest {
         listController = new ListController(taskListService);
 
         when(taskListService.createPersonalList(any(), any())).thenReturn(list);
-        when(taskListService.getAllPersonalLists(any())).thenReturn(Arrays.asList(list, anotherList));
+        when(taskListService.getAllPersonalLists(any())).thenReturn(asList(list, anotherList));
+        when(taskListService.getTasksInList(any())).thenReturn(tasks);
     }
 
     @Test
@@ -90,5 +97,32 @@ public class ListControllerTest {
     public void getPersonalLists_callsTaskListService() {
         listController.createPersonalList(userId, listName, uriComponentsBuilder);
         verify(taskListService).createPersonalList(userId, listName);
+    }
+
+    @Test
+    public void getTasks_returns200_onSuccess() {
+        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getTasks_returnsAllTasks_onSuccess() {
+        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
+        assertThat(response.getBody()).isEqualTo(tasks);
+    }
+
+    @Test
+    public void getTasks_returnsAnEmptyResultList_whenNonExist() {
+        reset(taskListService);
+        when(taskListService.getTasksInList(any())).thenReturn(emptyList());
+
+        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
+        assertThat(response.getBody()).hasSize(0);
+    }
+
+    @Test
+    public void getTasks_callsTaskListService() {
+        listController.getTasksInList(listWithTasks.getId());
+        verify(taskListService).getTasksInList(listWithTasks.getId());
     }
 }

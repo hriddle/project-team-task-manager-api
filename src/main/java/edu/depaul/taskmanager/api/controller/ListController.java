@@ -1,5 +1,6 @@
 package edu.depaul.taskmanager.api.controller;
 
+import edu.depaul.taskmanager.api.model.Task;
 import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.service.TaskListService;
 import org.springframework.http.ResponseEntity;
@@ -33,5 +34,11 @@ public class ListController {
     public ResponseEntity<List<TaskList>> getPersonalLists(@PathVariable String userId) {
         List<TaskList> lists = taskListService.getAllPersonalLists(userId);
         return ResponseEntity.ok().body(lists);
+    }
+
+    @GetMapping("/lists/{listId}/tasks")
+    public ResponseEntity<List<Task>> getTasksInList(@PathVariable String listId) {
+        List<Task> tasks = taskListService.getTasksInList(listId);
+        return ResponseEntity.ok().body(tasks);
     }
 }

@@ -1,13 +1,18 @@
 package edu.depaul.taskmanager.api.service;
 
+import edu.depaul.taskmanager.api.model.Task;
 import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import static java.util.Arrays.asList;
+import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -24,6 +29,11 @@ public class TaskListServiceTest {
     private String listName = "To Do List";
     private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
     private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
+    private TaskList listWithTasks = TaskList.newBuilder(taskList)
+            .withTasks(asList(
+                    Task.newBuilder().withName("Task 1").build(),
+                    Task.newBuilder().withName("Task 2").build()))
+            .build();
 
     @Before
     public void setUp() {
@@ -32,6 +42,7 @@ public class TaskListServiceTest {
 
         when(repository.save(any())).thenReturn(taskList);
         when(repository.findByOwnerId(any())).thenReturn(Arrays.asList(taskList, anotherTaskList));
+        when(repository.findById(any())).thenReturn(of(listWithTasks));
     }
 
     @Test
@@ -56,5 +67,17 @@ public class TaskListServiceTest {
     public void getAllPersonalLists_returnsAList() {
         List<TaskList> lists = service.getAllPersonalLists(userId);
         assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList);
+    }
+
+    @Test
+    public void getTasksInList_callsRepository() {
+        service.getTasksInList(listWithTasks.getId());
+        verify(repository).findById(listWithTasks.getId());
+    }
+
+    @Test
+    public void getTasksInList_returnsAList() {
+        List<Task> tasks = service.getTasksInList(listWithTasks.getId());
+        assertThat(tasks).isEqualTo(listWithTasks.getTasks());
     }
 }
