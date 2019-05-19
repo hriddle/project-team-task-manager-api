@@ -24,7 +24,7 @@ public class TaskListService {
     }
 
     public TaskList createPersonalList(String userId, String listName) {
-        return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).build());
+        return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).withTasks(emptyList()).build());
     }
 
     public List<TaskList> getAllPersonalLists(String userId) {
@@ -33,7 +33,7 @@ public class TaskListService {
 
     public List<Task> getTasksInList(String listId) {
         Optional<TaskList> taskList = taskListRepository.findById(listId);
-        return taskList.isPresent() ? taskList.get().getTasks() : emptyList();
+        return taskList.isPresent() && taskList.get().getTasks() != null ? taskList.get().getTasks() : emptyList();
     }
 
     public List<Task> addTaskToList(String listId, Task task) {

@@ -116,7 +116,7 @@ public class ListControllerTest {
     }
 
     @Test
-    public void getTasks_returnsAnEmptyResultList_whenNonExist() {
+    public void getTasks_returnsAnEmptyResultList_whenNoneExist() {
         reset(taskListService);
         when(taskListService.getTasksInList(any())).thenReturn(emptyList());
 
