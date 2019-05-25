@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -47,5 +48,11 @@ public class ListController {
     public ResponseEntity<List<Task>> addTaskToList(@PathVariable String listId, @RequestBody Task task) {
         List<Task> tasks = taskListService.addTaskToList(listId, task);
         return ResponseEntity.status(HttpStatus.CREATED).body(tasks);
+    }
+
+    @PutMapping("/lists/{listId}/tasks/{index}")
+    public ResponseEntity<Task> updateTask(@PathVariable String listId, @PathVariable int index, @RequestBody Task task) {
+        Task updatedTask = taskListService.updateTask(listId, index, task);
+        return ResponseEntity.ok(updatedTask);
     }
 }

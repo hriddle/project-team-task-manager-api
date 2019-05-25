@@ -34,6 +34,7 @@ public class TaskListServiceTest {
     private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
     private TaskList taskListWithTasks = TaskList.newBuilder(taskList).withTasks(asList(task1, task2)).build();
     private TaskList taskListWithoutTasks = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
+    private Task editedTask = Task.newBuilder().withName("Edited Task").build();
 
     @Before
     public void setUp() {
@@ -113,5 +114,37 @@ public class TaskListServiceTest {
                 .withTasks(singletonList(taskToAdd))
                 .build()
         );
+    }
+
+    @Test
+    public void updateTask_callsRepositorySave() {
+        when(repository.save(any())).thenReturn(taskListWithTasks);
+
+        service.updateTask(taskListWithTasks.getId(), 0, editedTask);
+        verify(repository).save(TaskList.newBuilder(taskListWithTasks).withTasks(asList(editedTask, task2)).build());
+
+        service.updateTask(taskListWithTasks.getId(), 1, editedTask);
+        verify(repository).save(TaskList.newBuilder(taskListWithTasks).withTasks(asList(task1, editedTask)).build());
+    }
+
+    @Test
+    public void updateTask_returnsUpdatedTask() {
+        when(repository.save(any())).thenReturn(TaskList.newBuilder(taskList).withTasks(asList(task1, editedTask)).build());
+        Task task = service.updateTask(taskListWithTasks.getId(), 1, editedTask);
+        assertThat(task.getName()).isEqualTo(editedTask.getName());
+    }
+
+    @Test
+    public void updateTask_returnsNullIfThereAreNoTasks() {
+        when(repository.findById(any())).thenReturn(of(TaskList.newBuilder().withId("1").withTasks(null).build()));
+        Task task = service.updateTask(taskListWithoutTasks.getId(), 0, editedTask);
+        assertThat(task).isNull();
+    }
+
+    @Test
+    public void updateTask_returnsNullIfIndexIsInvalid() {
+        when(repository.findById(any())).thenReturn(of(taskListWithTasks));
+        Task task = service.updateTask(taskListWithTasks.getId(), taskListWithTasks.getTasks().size(), editedTask);
+        assertThat(task).isNull();
     }
 }

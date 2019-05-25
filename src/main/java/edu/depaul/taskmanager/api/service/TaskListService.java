@@ -49,4 +49,21 @@ public class TaskListService {
             return null;
         }
     }
+
+    public Task updateTask(String listId, int index, Task task) {
+        Optional<TaskList> maybeTaskList = taskListRepository.findById(listId);
+        if (maybeTaskList.isPresent()) {
+            TaskList taskList = maybeTaskList.get();
+            if (taskList.getTasks() != null && taskList.getTasks().size() > index) {
+                List<Task> tasks = new ArrayList<>(taskList.getTasks());
+                tasks.set(index, task);
+                TaskList updatedTaskList = TaskList.newBuilder(taskList).withTasks(tasks).build();
+                TaskList savedTaskList = taskListRepository.save(updatedTaskList);
+                return savedTaskList.getTasks().get(index);
+            } else {
+                return null;
+            }
+        }
+        return null;
+    }
 }

@@ -10,16 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -39,6 +36,7 @@ public class ListControllerTest {
     private Task task2 = Task.newBuilder().withName("Task 2").build();
     private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(asList(task1, task2)).build();
     private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
+    private Task editedTask = Task.newBuilder().withName("Edited Task").build();
 
     @Before
     public void setUp() {
@@ -49,6 +47,7 @@ public class ListControllerTest {
         when(taskListService.getAllPersonalLists(any())).thenReturn(asList(list, anotherList));
         when(taskListService.getTasksInList(any())).thenReturn(asList(task1, task2));
         when(taskListService.addTaskToList(any(), any())).thenReturn(asList(task1, task2, taskToAdd));
+        when(taskListService.updateTask(any(), eq(1), any())).thenReturn(editedTask);
     }
 
     @Test
@@ -146,5 +145,23 @@ public class ListControllerTest {
     public void addTaskToList_callsTaskListService() {
         listController.addTaskToList(listWithTasks.getId(), taskToAdd);
         verify(taskListService).addTaskToList(listWithTasks.getId(), taskToAdd);
+    }
+
+    @Test
+    public void updateTask_returns200_onSuccess() {
+        ResponseEntity<Task> response = listController.updateTask(listWithTasks.getId(), 1, editedTask);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void updateTask_returnsUpdatedTask_onSuccess() {
+        ResponseEntity<Task> response = listController.updateTask(listWithTasks.getId(), 1, editedTask);
+        assertThat(response.getBody()).isEqualTo(editedTask);
+    }
+
+    @Test
+    public void updateTask_callsTaskListService() {
+        listController.updateTask(listWithTasks.getId(), 1, editedTask);
+        verify(taskListService).updateTask(listWithTasks.getId(), 1, editedTask);
     }
 }
