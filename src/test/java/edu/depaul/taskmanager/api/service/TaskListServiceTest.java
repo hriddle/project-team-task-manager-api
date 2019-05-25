@@ -147,4 +147,13 @@ public class TaskListServiceTest {
         Task task = service.updateTask(taskListWithTasks.getId(), taskListWithTasks.getTasks().size(), editedTask);
         assertThat(task).isNull();
     }
+
+    @Test
+    public void deleteTask_callsRepositorySave() {
+        service.deleteTask(taskListWithTasks.getId(), 0);
+        verify(repository).save(TaskList.newBuilder(taskListWithTasks).withTasks(singletonList(task2)).build());
+
+        service.deleteTask(taskListWithTasks.getId(), 1);
+        verify(repository).save(TaskList.newBuilder(taskListWithTasks).withTasks(singletonList(task1)).build());
+    }
 }

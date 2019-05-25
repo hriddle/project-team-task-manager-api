@@ -164,4 +164,16 @@ public class ListControllerTest {
         listController.updateTask(listWithTasks.getId(), 1, editedTask);
         verify(taskListService).updateTask(listWithTasks.getId(), 1, editedTask);
     }
+
+    @Test
+    public void deleteTask_returns204_onSuccess() {
+        ResponseEntity response = listController.deleteTask(listWithTasks.getId(), 0);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    }
+
+    @Test
+    public void deleteTask_callsTaskListService() {
+        listController.deleteTask(listWithTasks.getId(), 0);
+        verify(taskListService).deleteTask(listWithTasks.getId(), 0);
+    }
 }

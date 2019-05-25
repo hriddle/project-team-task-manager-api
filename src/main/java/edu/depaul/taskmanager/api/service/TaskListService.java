@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 @Service
 public class TaskListService {
@@ -65,5 +64,18 @@ public class TaskListService {
             }
         }
         return null;
+    }
+
+    public void deleteTask(String listId, int index) {
+        Optional<TaskList> maybeTaskList = taskListRepository.findById(listId);
+        if (maybeTaskList.isPresent()) {
+            TaskList taskList = maybeTaskList.get();
+            if (taskList.getTasks() != null && taskList.getTasks().size() > index) {
+                List<Task> tasks = new ArrayList<>(taskList.getTasks());
+                tasks.remove(index);
+                TaskList updatedTaskList = TaskList.newBuilder(taskList).withTasks(tasks).build();
+                taskListRepository.save(updatedTaskList);
+            }
+        }
     }
 }
