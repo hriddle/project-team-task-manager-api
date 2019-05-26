@@ -6,6 +6,7 @@ import java.util.Objects;
 public class Task {
     private String name;
     private LocalDateTime dueDate;
+    private CompletionDetails completionDetails;
 
     public Task() {
     }
@@ -13,6 +14,7 @@ public class Task {
     private Task(Builder builder) {
         name = builder.name;
         dueDate = builder.dueDate;
+        completionDetails = builder.completionDetails;
     }
 
     public static Builder newBuilder() {
@@ -27,11 +29,16 @@ public class Task {
         return dueDate;
     }
 
+    public CompletionDetails getCompletionDetails() {
+        return completionDetails;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
                 "name='" + name + '\'' +
                 ", dueDate=" + dueDate +
+                ", completionDetails=" + completionDetails +
                 '}';
     }
 
@@ -41,17 +48,19 @@ public class Task {
         if (o == null || getClass() != o.getClass()) return false;
         Task task = (Task) o;
         return Objects.equals(name, task.name) &&
-                Objects.equals(dueDate, task.dueDate);
+                Objects.equals(dueDate, task.dueDate) &&
+                Objects.equals(completionDetails, task.completionDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, dueDate);
+        return Objects.hash(name, dueDate, completionDetails);
     }
 
     public static final class Builder {
         private String name;
         private LocalDateTime dueDate;
+        private CompletionDetails completionDetails;
 
         private Builder() {
         }
@@ -63,6 +72,11 @@ public class Task {
 
         public Builder withDueDate(LocalDateTime val) {
             dueDate = val;
+            return this;
+        }
+
+        public Builder withCompletionDetails(CompletionDetails completionDetails) {
+            this.completionDetails = completionDetails;
             return this;
         }
 
