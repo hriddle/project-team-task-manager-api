@@ -59,8 +59,6 @@ public class TaskListService {
                 TaskList updatedTaskList = TaskList.newBuilder(taskList).withTasks(tasks).build();
                 TaskList savedTaskList = taskListRepository.save(updatedTaskList);
                 return savedTaskList.getTasks().get(index);
-            } else {
-                return null;
             }
         }
         return null;

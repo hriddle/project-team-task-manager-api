@@ -6,6 +6,7 @@ import edu.depaul.taskmanager.api.repository.TaskListRepository;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,12 +30,12 @@ public class TaskListServiceTest {
     private String listName = "To Do List";
     private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).withTasks(emptyList()).build();
     private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).withTasks(emptyList()).build();
-    private Task task1 = Task.newBuilder().withName("Task 1").build();
-    private Task task2 = Task.newBuilder().withName("Task 2").build();
+    private Task task1 = Task.newBuilder().withName("Task 1").withDueDate(null).build();
+    private Task task2 = Task.newBuilder().withName("Task 2").withDueDate(LocalDateTime.of(2019, 12, 1, 12, 0, 0)).build();
     private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
     private TaskList taskListWithTasks = TaskList.newBuilder(taskList).withTasks(asList(task1, task2)).build();
     private TaskList taskListWithoutTasks = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
-    private Task editedTask = Task.newBuilder().withName("Edited Task").build();
+    private Task editedTask = Task.newBuilder().withName("Edited Task").withDueDate(LocalDateTime.of(2019, 12, 31, 12, 0, 0)).build();
 
     @Before
     public void setUp() {
@@ -132,6 +133,7 @@ public class TaskListServiceTest {
         when(repository.save(any())).thenReturn(TaskList.newBuilder(taskList).withTasks(asList(task1, editedTask)).build());
         Task task = service.updateTask(taskListWithTasks.getId(), 1, editedTask);
         assertThat(task.getName()).isEqualTo(editedTask.getName());
+        assertThat(task.getDueDate()).isEqualTo(editedTask.getDueDate());
     }
 
     @Test

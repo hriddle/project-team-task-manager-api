@@ -1,6 +1,5 @@
 package edu.depaul.taskmanager.api.controller;
 
-import edu.depaul.taskmanager.api.model.Task;
 import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.service.TaskListService;
 import org.junit.Before;
@@ -16,7 +15,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
@@ -32,11 +30,6 @@ public class ListControllerTest {
     private String listName = "To Do List";
     private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build();
     private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
-    private Task task1 = Task.newBuilder().withName("Task 1").build();
-    private Task task2 = Task.newBuilder().withName("Task 2").build();
-    private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(asList(task1, task2)).build();
-    private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
-    private Task editedTask = Task.newBuilder().withName("Edited Task").build();
 
     @Before
     public void setUp() {
@@ -45,9 +38,6 @@ public class ListControllerTest {
 
         when(taskListService.createPersonalList(any(), any())).thenReturn(list);
         when(taskListService.getAllPersonalLists(any())).thenReturn(asList(list, anotherList));
-        when(taskListService.getTasksInList(any())).thenReturn(asList(task1, task2));
-        when(taskListService.addTaskToList(any(), any())).thenReturn(asList(task1, task2, taskToAdd));
-        when(taskListService.updateTask(any(), eq(1), any())).thenReturn(editedTask);
     }
 
     @Test
@@ -100,80 +90,5 @@ public class ListControllerTest {
     public void getPersonalLists_callsTaskListService() {
         listController.createPersonalList(userId, listName, uriComponentsBuilder);
         verify(taskListService).createPersonalList(userId, listName);
-    }
-
-    @Test
-    public void getTasks_returns200_onSuccess() {
-        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    public void getTasks_returnsAllTasks_onSuccess() {
-        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
-        assertThat(response.getBody()).isEqualTo(asList(task1, task2));
-    }
-
-    @Test
-    public void getTasks_returnsAnEmptyResultList_whenNoneExist() {
-        reset(taskListService);
-        when(taskListService.getTasksInList(any())).thenReturn(emptyList());
-
-        ResponseEntity<List<Task>> response = listController.getTasksInList(listWithTasks.getId());
-        assertThat(response.getBody()).hasSize(0);
-    }
-
-    @Test
-    public void getTasks_callsTaskListService() {
-        listController.getTasksInList(listWithTasks.getId());
-        verify(taskListService).getTasksInList(listWithTasks.getId());
-    }
-
-    @Test
-    public void addTaskToList_returns201_onCreation() {
-        ResponseEntity<List<Task>> response = listController.addTaskToList(listWithTasks.getId(), taskToAdd);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-    }
-
-    @Test
-    public void addTaskToList_returnsAllTasks_onSuccess() {
-        ResponseEntity<List<Task>> response = listController.addTaskToList(listWithTasks.getId(), taskToAdd);
-        assertThat(response.getBody()).isEqualTo(asList(task1, task2, taskToAdd));
-    }
-
-    @Test
-    public void addTaskToList_callsTaskListService() {
-        listController.addTaskToList(listWithTasks.getId(), taskToAdd);
-        verify(taskListService).addTaskToList(listWithTasks.getId(), taskToAdd);
-    }
-
-    @Test
-    public void updateTask_returns200_onSuccess() {
-        ResponseEntity<Task> response = listController.updateTask(listWithTasks.getId(), 1, editedTask);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-    }
-
-    @Test
-    public void updateTask_returnsUpdatedTask_onSuccess() {
-        ResponseEntity<Task> response = listController.updateTask(listWithTasks.getId(), 1, editedTask);
-        assertThat(response.getBody()).isEqualTo(editedTask);
-    }
-
-    @Test
-    public void updateTask_callsTaskListService() {
-        listController.updateTask(listWithTasks.getId(), 1, editedTask);
-        verify(taskListService).updateTask(listWithTasks.getId(), 1, editedTask);
-    }
-
-    @Test
-    public void deleteTask_returns204_onSuccess() {
-        ResponseEntity response = listController.deleteTask(listWithTasks.getId(), 0);
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-    }
-
-    @Test
-    public void deleteTask_callsTaskListService() {
-        listController.deleteTask(listWithTasks.getId(), 0);
-        verify(taskListService).deleteTask(listWithTasks.getId(), 0);
     }
 }
