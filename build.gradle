@@ -56,7 +56,7 @@ test {
 
 task unzip(type: Copy) {
     from configurations.localImplementation
-    into "$buildDir/newrelic"
+    into "$rootDir/newrelic"
 }
 
 build.dependsOn unzip
