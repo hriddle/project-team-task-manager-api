@@ -13,6 +13,10 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    localImplementation
+}
+
 dependencies {
     implementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo'
     implementation 'cz.jirutka.spring:embedmongo-spring:1.3.1'
@@ -23,7 +27,7 @@ dependencies {
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
-    implementation 'com.newrelic.agent.java:newrelic-java:5.0.0@zip'
+    localImplementation 'com.newrelic.agent.java:newrelic-java:5.0.0@zip'
 
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -49,3 +53,10 @@ test {
         }
     }
 }
+
+task unzip(type: Copy) {
+    from configurations.localImplementation
+    into "$buildDir/newrelic"
+}
+
+build.dependsOn unzip
