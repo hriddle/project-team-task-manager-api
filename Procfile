@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -jar build/libs/*.jar --spring.data.mongodb.uri=$MONGODB_URI
+web: java -Dserver.port=$PORT $JAVA_OPTS -javaagent:/app/newrelic/newrelic.jar -jar build/libs/*.jar --spring.data.mongodb.uri=$MONGODB_URI
