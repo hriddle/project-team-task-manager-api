@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT $JAVA_OPTS -javaagent:/app/newrelic/newrelic-java-5.0.0.zip -Dnewrelic.config.app_name=Team_Task_Manager_API -Dnewrelic.config.license_key=$NEW_RELIC_LICENSE_KEY -jar build/libs/*.jar --spring.data.mongodb.uri=$MONGODB_URI
+web: java -Dserver.port=$PORT $JAVA_OPTS -javaagent:/app/newrelic/newrelic.jar -Dnewrelic.config.app_name=Team_Task_Manager_API -Dnewrelic.config.license_key=$NEW_RELIC_LICENSE_KEY -jar build/libs/*.jar --spring.data.mongodb.uri=$MONGODB_URI

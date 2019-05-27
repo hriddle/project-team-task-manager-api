@@ -14,7 +14,7 @@ repositories {
 }
 
 configurations {
-    localImplementation
+    unzip
 }
 
 dependencies {
@@ -27,7 +27,7 @@ dependencies {
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
 
-    localImplementation 'com.newrelic.agent.java:newrelic-java:5.0.0@zip'
+    unzip 'com.newrelic.agent.java:newrelic-java:5.0.0'
 
     runtimeOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -54,9 +54,19 @@ test {
     }
 }
 
+task copyZipArchives(type: Copy) {
+    from configurations.unzip
+    into "$buildDir/agent"
+}
+
 task unzip(type: Copy) {
-    from configurations.localImplementation
-    into "$rootDir/newrelic"
+    dependsOn copyZipArchives
+    from zipTree(file("$buildDir/agent/newrelic-java-5.0.0.zip"))
+    into "$rootDir"
+}
+
+clean.doFirst {
+    delete "$rootDir/newrelic"
 }
 
 build.dependsOn unzip
