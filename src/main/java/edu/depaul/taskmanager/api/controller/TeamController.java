@@ -36,4 +36,9 @@ public class TeamController {
         }
     }
 
+    @PutMapping("/{teamID}/{memberID}")
+    public ResponseEntity addNewMember(@PathVariable String teamID, @PathVariable String memberID) {
+        Team updatedTeam = teamService.addTeamMember(teamID, memberID);
+        return ResponseEntity.ok(updatedTeam);
+    }
 }
