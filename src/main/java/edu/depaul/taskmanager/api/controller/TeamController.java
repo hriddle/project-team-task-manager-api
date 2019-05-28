@@ -30,7 +30,6 @@ public class TeamController {
                 .body(createdTeam);
     }
 
-
     @GetMapping()
     public ResponseEntity getTeams(@RequestParam(required = false) String userId) {
         if (userId == null) {
@@ -41,10 +40,14 @@ public class TeamController {
     }
 
     @PutMapping("/{teamID}/{memberID}")
-    public ResponseEntity addNewMember(@PathVariable String teamID, @PathVariable String memberID) {
+    public ResponseEntity addNewMember(@PathVariable String teamID, @PathVariable String memberID,
+                                       UriComponentsBuilder uriComponentsBuilder) {
         Team updatedTeam = teamService.addTeamMember(teamID, memberID);
-        return ResponseEntity.ok(updatedTeam);
+        return ResponseEntity.created(uriComponentsBuilder.path("/teams/{teamId}")
+                .buildAndExpand(updatedTeam.getId()).toUri())
+                .body(updatedTeam);
     }
+
     @GetMapping("/{teamId}/members")
     public ResponseEntity getTeamMembers(@PathVariable String teamId) {
         List<TeamMemberDetail> teamMembers = teamService.getTeamMembers(teamId);
