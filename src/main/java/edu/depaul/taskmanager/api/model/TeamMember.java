@@ -2,14 +2,18 @@ package edu.depaul.taskmanager.api.model;
 
 import java.util.Objects;
 
-public class TeamMembers {
+public class TeamMember {
 
     private String id;
 
-    public TeamMembers() {
+    public TeamMember() {
     }
 
-    private TeamMembers(Builder builder) {
+    protected TeamMember(String id) {
+        this.id = id;
+    }
+
+    private TeamMember(Builder builder) {
         id = builder.id;
     }
 
@@ -17,11 +21,12 @@ public class TeamMembers {
         return new Builder();
     }
 
-    public static Builder newBuilder(TeamMembers copy) {
+    public static Builder newBuilder(TeamMember copy) {
         Builder builder = new Builder();
         builder.id = copy.getId();
         return builder;
     }
+
 
     public String getId() {
         return id;
@@ -29,7 +34,7 @@ public class TeamMembers {
 
     @Override
     public String toString() {
-        return "TeamMembers{" +
+        return "TeamMember{" +
                 "id='" + id + '\'' +
                 '}';
     }
@@ -38,7 +43,7 @@ public class TeamMembers {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TeamMembers that = (TeamMembers) o;
+        TeamMember that = (TeamMember) o;
         return Objects.equals(id, that.id);
     }
 
@@ -58,8 +63,8 @@ public class TeamMembers {
             return this;
         }
 
-        public TeamMembers build() {
-            return new TeamMembers(this);
+        public TeamMember build() {
+            return new TeamMember(this);
         }
     }
 }

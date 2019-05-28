@@ -1,7 +1,8 @@
 package edu.depaul.taskmanager.api.controller;
 
 import edu.depaul.taskmanager.api.model.Team;
-import edu.depaul.taskmanager.api.model.TeamMembers;
+import edu.depaul.taskmanager.api.model.TeamMember;
+import edu.depaul.taskmanager.api.model.TeamMemberDetail;
 import edu.depaul.taskmanager.api.service.TeamService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -33,12 +34,16 @@ public class TeamControllerTest {
     private MockMvc mockMvc;
     private Team requestTeam = Team.newBuilder()
             .withName("my team")
-            .withMembers(singletonList(TeamMembers.newBuilder().withId("1").build()))
+            .withMembers(singletonList(TeamMember.newBuilder().withId("1").build()))
             .build();
 
     private List<Team> expectedTeamList = asList(
             Team.newBuilder().withId("1").withName("one").build(),
             Team.newBuilder().withId("2").withName("two").build()
+    );
+    private List<TeamMemberDetail> expectedTeamMemberList = asList(
+            TeamMemberDetail.newBuilder().withId("123").build(),
+            TeamMemberDetail.newBuilder().withId("456").build()
     );
 
     @Before
@@ -52,6 +57,7 @@ public class TeamControllerTest {
         when(mockTeamService.saveTeam(any())).thenReturn(Team.newBuilder().withName("team name").withId("team-id").build());
         when(mockTeamService.getAllTeams()).thenReturn(expectedTeamList);
         when(mockTeamService.getTeamsBy(any())).thenReturn(expectedTeamList);
+        when(mockTeamService.getTeamMembers(any())).thenReturn(expectedTeamMemberList);
     }
 
     @Test
@@ -116,8 +122,27 @@ public class TeamControllerTest {
     @Test
     public void getAllTeams_acceptsNetworkRequests() throws Exception {
         mockMvc.perform(get("/teams"))
-                .andExpect(status().isOk());
-//                .andExpect(jsonPath("$.id", CoreMatchers.equalTo("team-id")))
-//                .andExpect(jsonPath("$.name", CoreMatchers.equalTo("team name")));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", CoreMatchers.equalTo("1")))
+                .andExpect(jsonPath("$[0].name", CoreMatchers.equalTo("one")))
+                .andExpect(jsonPath("$[1].id", CoreMatchers.equalTo("2")))
+                .andExpect(jsonPath("$[1].name", CoreMatchers.equalTo("two")));
+    }
+
+    @Test
+    public void getTeamMembers_returnsMembersFromService() {
+        ResponseEntity responseEntity = teamController.getTeamMembers("12345");
+        assertThat(responseEntity.getBody()).isInstanceOf(List.class);
+        assertThat(responseEntity.getBody()).isEqualTo(expectedTeamMemberList);
+
+        verify(mockTeamService).getTeamMembers("12345");
+    }
+
+    @Test
+    public void getTeamMembers_acceptsNetworkRequests() throws Exception {
+        mockMvc.perform(get("/teams/123/members"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id", CoreMatchers.equalTo("123")))
+                .andExpect(jsonPath("$[1].id", CoreMatchers.equalTo("456")));
     }
 }

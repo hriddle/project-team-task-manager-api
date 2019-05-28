@@ -10,7 +10,7 @@ public class Team {
     @Id
     private String id;
     private String name;
-    private List<TeamMembers> members;
+    private List<TeamMember> members;
 
     public Team() {
     }
@@ -41,7 +41,7 @@ public class Team {
         return name;
     }
 
-    public List<TeamMembers> getMembers() {
+    public List<TeamMember> getMembers() {
         return members;
     }
 
@@ -72,7 +72,7 @@ public class Team {
     public static final class Builder {
         private String id;
         private String name;
-        private List<TeamMembers> members;
+        private List<TeamMember> members;
 
         private Builder() {
         }
@@ -87,7 +87,7 @@ public class Team {
             return this;
         }
 
-        public Builder withMembers(List<TeamMembers> val) {
+        public Builder withMembers(List<TeamMember> val) {
             members = val;
             return this;
         }

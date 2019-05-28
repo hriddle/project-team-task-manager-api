@@ -1,11 +1,15 @@
 package edu.depaul.taskmanager.api.controller;
 
 import edu.depaul.taskmanager.api.model.Team;
+import edu.depaul.taskmanager.api.model.TeamMember;
+import edu.depaul.taskmanager.api.model.TeamMemberDetail;
 import edu.depaul.taskmanager.api.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/teams")
@@ -40,5 +44,10 @@ public class TeamController {
     public ResponseEntity addNewMember(@PathVariable String teamID, @PathVariable String memberID) {
         Team updatedTeam = teamService.addTeamMember(teamID, memberID);
         return ResponseEntity.ok(updatedTeam);
+    }
+    @GetMapping("/{teamId}/members")
+    public ResponseEntity getTeamMembers(@PathVariable String teamId) {
+        List<TeamMemberDetail> teamMembers = teamService.getTeamMembers(teamId);
+        return ResponseEntity.ok(teamMembers);
     }
 }
