@@ -26,8 +26,16 @@ public class TaskListService {
         return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).withTasks(emptyList()).build());
     }
 
+    public TaskList createTeamList(String teamId, String listName) {
+        return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(teamId).withTasks(emptyList()).build());
+    }
+
     public List<TaskList> getAllPersonalLists(String userId) {
         return taskListRepository.findByOwnerId(userId);
+    }
+
+    public List<TaskList> getAllTeamLists(String teamId) {
+        return taskListRepository.findByOwnerId(teamId);
     }
 
     public List<Task> getTasksInList(String listId) {

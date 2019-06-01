@@ -4,8 +4,11 @@ import com.mongodb.MongoClient;
 import cz.jirutka.spring.embedmongo.EmbeddedMongoFactoryBean;
 import edu.depaul.taskmanager.api.model.Task;
 import edu.depaul.taskmanager.api.model.TaskList;
+import edu.depaul.taskmanager.api.model.Team;
+import edu.depaul.taskmanager.api.model.TeamMember;
 import edu.depaul.taskmanager.api.model.User;
 import edu.depaul.taskmanager.api.repository.TaskListRepository;
+import edu.depaul.taskmanager.api.repository.TeamRepository;
 import edu.depaul.taskmanager.api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -19,6 +22,8 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @Configuration
 @Profile("!cloud")
@@ -45,6 +50,9 @@ class PostStartupConfiguration {
 
     @Autowired
     private TaskListRepository listRepository;
+
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Bean
     public ApplicationListener<ContextRefreshedEvent> loadDefaultData() {
@@ -77,6 +85,19 @@ class PostStartupConfiguration {
                             ))
                             .build()
             ));
+            Team team = teamRepository.save(Team.newBuilder()
+                    .withName("Team")
+                    .withMembers(singletonList(
+                            TeamMember.newBuilder()
+                                    .withId(user.getId())
+                                    .build()))
+                    .build());
+
+            listRepository.save(TaskList.newBuilder()
+                    .withName("Team List 1")
+                    .withOwnerId(team.getId())
+                    .withTasks(emptyList())
+                    .build());
         };
     }
 }

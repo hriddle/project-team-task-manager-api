@@ -25,16 +25,16 @@ public class TaskListServiceTest {
     private TaskListService service;
     private TaskListRepository repository;
 
-    private String userId = "1234";
+    private String id = "1234";
     private String listId = "5678";
     private String listName = "To Do List";
-    private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).withTasks(emptyList()).build();
-    private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).withTasks(emptyList()).build();
+    private TaskList taskList = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(id).withTasks(emptyList()).build();
+    private TaskList anotherTaskList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(id).withTasks(emptyList()).build();
     private Task task1 = Task.newBuilder().withName("Task 1").withDueDate(null).build();
     private Task task2 = Task.newBuilder().withName("Task 2").withDueDate(LocalDateTime.of(2019, 12, 1, 12, 0, 0)).build();
     private Task taskToAdd = Task.newBuilder().withName("Task 3").build();
     private TaskList taskListWithTasks = TaskList.newBuilder(taskList).withTasks(asList(task1, task2)).build();
-    private TaskList taskListWithoutTasks = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(userId).build();
+    private TaskList taskListWithoutTasks = TaskList.newBuilder().withId(listId).withName(listName).withOwnerId(id).build();
     private Task editedTask = Task.newBuilder().withName("Edited Task").withDueDate(LocalDateTime.of(2019, 12, 31, 12, 0, 0)).build();
 
     @Before
@@ -49,25 +49,49 @@ public class TaskListServiceTest {
 
     @Test
     public void createPersonalList_callsRepository() {
-        service.createPersonalList(userId, listName);
-        verify(repository).save(TaskList.newBuilder().withName(listName).withOwnerId(userId).withTasks(emptyList()).build());
+        service.createPersonalList(id, listName);
+        verify(repository).save(TaskList.newBuilder().withName(listName).withOwnerId(id).withTasks(emptyList()).build());
     }
 
     @Test
     public void createPersonalList_returnsCreatedList() {
-        TaskList createdList = service.createPersonalList(userId, listName);
+        TaskList createdList = service.createPersonalList(id, listName);
+        assertThat(createdList).isEqualTo(taskList);
+    }
+
+    @Test
+    public void createTeamList_callsRepository() {
+        service.createPersonalList(id, listName);
+        verify(repository).save(TaskList.newBuilder().withName(listName).withOwnerId(id).withTasks(emptyList()).build());
+    }
+
+    @Test
+    public void createTeamList_returnsCreatedList() {
+        TaskList createdList = service.createTeamList(id, listName);
         assertThat(createdList).isEqualTo(taskList);
     }
 
     @Test
     public void getAllPersonalLists_callsRepository() {
-        service.getAllPersonalLists(userId);
-        verify(repository).findByOwnerId(userId);
+        service.getAllPersonalLists(id);
+        verify(repository).findByOwnerId(id);
     }
 
     @Test
     public void getAllPersonalLists_returnsAList() {
-        List<TaskList> lists = service.getAllPersonalLists(userId);
+        List<TaskList> lists = service.getAllPersonalLists(id);
+        assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList);
+    }
+
+    @Test
+    public void getAllTeamLists_callsRepository() {
+        service.getAllTeamLists(taskList.getId());
+        verify(repository).findByOwnerId(taskList.getId());
+    }
+
+    @Test
+    public void getAllTeamLists_returnsAList() {
+        List<TaskList> lists = service.getAllTeamLists(taskList.getId());
         assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList);
     }
 

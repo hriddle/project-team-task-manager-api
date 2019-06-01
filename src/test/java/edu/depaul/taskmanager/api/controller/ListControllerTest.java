@@ -26,10 +26,10 @@ public class ListControllerTest {
     private UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.newInstance();
     private TaskListService taskListService;
 
-    private String userId = "1234";
+    private String id = "1234";
     private String listName = "To Do List";
-    private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(userId).build();
-    private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(userId).build();
+    private TaskList list = TaskList.newBuilder().withId("5678").withName(listName).withOwnerId(id).build();
+    private TaskList anotherList = TaskList.newBuilder().withId("9999").withName("Another List").withOwnerId(id).build();
 
     @Before
     public void setUp() {
@@ -37,43 +37,70 @@ public class ListControllerTest {
         listController = new ListController(taskListService);
 
         when(taskListService.createPersonalList(any(), any())).thenReturn(list);
+        when(taskListService.createTeamList(any(), any())).thenReturn(list);
         when(taskListService.getAllPersonalLists(any())).thenReturn(asList(list, anotherList));
+        when(taskListService.getAllTeamLists(any())).thenReturn(asList(list, anotherList));
     }
 
     @Test
     public void createPersonalList_returns201_onCreation() {
-        ResponseEntity<TaskList> response = listController.createPersonalList(userId, listName, uriComponentsBuilder);
+        ResponseEntity<TaskList> response = listController.createPersonalList(id, listName, uriComponentsBuilder);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     }
 
     @Test
     public void createPersonalList_returnsList_onSuccess() {
-        ResponseEntity<TaskList> response = listController.createPersonalList(userId, listName, uriComponentsBuilder);
+        ResponseEntity<TaskList> response = listController.createPersonalList(id, listName, uriComponentsBuilder);
         assertThat(response.getBody()).isEqualTo(list);
     }
 
     @Test
     public void createPersonalList_returnsLocationHeader_onSuccess() {
-        URI locationHeader = listController.createPersonalList(userId, listName, uriComponentsBuilder).getHeaders().getLocation();
+        URI locationHeader = listController.createPersonalList(id, listName, uriComponentsBuilder).getHeaders().getLocation();
         assertThat(locationHeader).isNotNull();
         assertThat(locationHeader.getPath()).isEqualTo("/users/1234/lists/5678");
     }
 
     @Test
     public void createPersonalList_callsTaskListService() {
-        listController.createPersonalList(userId, listName, uriComponentsBuilder);
-        verify(taskListService).createPersonalList(userId, listName);
+        listController.createPersonalList(id, listName, uriComponentsBuilder);
+        verify(taskListService).createPersonalList(id, listName);
+    }
+
+    @Test
+    public void createTeamList_returns201_onCreation() {
+        ResponseEntity<TaskList> response = listController.createTeamList(id, listName, uriComponentsBuilder);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    public void createTeamList_returnsList_onSuccess() {
+        ResponseEntity<TaskList> response = listController.createTeamList(id, listName, uriComponentsBuilder);
+        assertThat(response.getBody()).isEqualTo(list);
+    }
+
+    @Test
+    public void createTeamList_returnsLocationHeader_onSuccess() {
+        URI locationHeader = listController.createTeamList(id, listName, uriComponentsBuilder).getHeaders().getLocation();
+        assertThat(locationHeader).isNotNull();
+        assertThat(locationHeader.getPath()).isEqualTo("/teams/1234/lists/5678");
+    }
+
+    @Test
+    public void createTeamList_callsTaskListService() {
+        listController.createTeamList(id, listName, uriComponentsBuilder);
+        verify(taskListService).createTeamList(id, listName);
     }
 
     @Test
     public void getPersonalLists_returns200_onSuccess() {
-        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(id);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test
     public void getPersonalLists_returnsAllTaskLists_onSuccess() {
-        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(id);
         assertThat(response.getBody()).containsExactlyInAnyOrder(list, anotherList);
     }
 
@@ -82,13 +109,39 @@ public class ListControllerTest {
         reset(taskListService);
         when(taskListService.getAllPersonalLists(any())).thenReturn(emptyList());
 
-        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(userId);
+        ResponseEntity<List<TaskList>> response = listController.getPersonalLists(id);
         assertThat(response.getBody()).hasSize(0);
     }
 
     @Test
     public void getPersonalLists_callsTaskListService() {
-        listController.createPersonalList(userId, listName, uriComponentsBuilder);
-        verify(taskListService).createPersonalList(userId, listName);
+        listController.getPersonalLists(id);
+        verify(taskListService).getAllPersonalLists(id);
+    }
+
+    @Test
+    public void getTeamLists_returns200_onSuccess() {
+        ResponseEntity<List<TaskList>> response = listController.getTeamLists(id);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    public void getTeamLists_returnsAllTaskLists_onSuccess() {
+        ResponseEntity<List<TaskList>> response = listController.getTeamLists(id);
+        assertThat(response.getBody()).containsExactlyInAnyOrder(list, anotherList);
+    }
+
+    @Test
+    public void getTeamLists_returnsAnEmptyResultList_whenNoneExist() {
+        when(taskListService.getAllTeamLists(any())).thenReturn(emptyList());
+
+        ResponseEntity<List<TaskList>> response = listController.getTeamLists(id);
+        assertThat(response.getBody()).hasSize(0);
+    }
+
+    @Test
+    public void getTeamLists_callsTaskListService() {
+        listController.getTeamLists(id);
+        verify(taskListService).getAllTeamLists(id);
     }
 }

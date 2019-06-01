@@ -34,4 +34,18 @@ public class ListController {
         List<TaskList> lists = taskListService.getAllPersonalLists(userId);
         return ResponseEntity.ok().body(lists);
     }
+
+    @GetMapping("/teams/{teamId}/lists")
+    public ResponseEntity<List<TaskList>> getTeamLists(@PathVariable String teamId) {
+        List<TaskList> lists = taskListService.getAllTeamLists(teamId);
+        return ResponseEntity.ok().body(lists);
+    }
+
+    @PostMapping("/teams/{teamId}/lists")
+    public ResponseEntity<TaskList> createTeamList(@PathVariable String teamId, @RequestBody String listName, UriComponentsBuilder uriComponentsBuilder) {
+        TaskList list = taskListService.createTeamList(teamId, listName);
+        return ResponseEntity
+                .created(uriComponentsBuilder.path("/teams/{teamId}/lists/{listId}").buildAndExpand(teamId, list.getId()).toUri())
+                .body(list);
+    }
 }
