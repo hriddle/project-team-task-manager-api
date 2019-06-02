@@ -20,10 +20,10 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 
 @Configuration
 @Profile("!cloud")
@@ -57,16 +57,34 @@ class PostStartupConfiguration {
     @Bean
     public ApplicationListener<ContextRefreshedEvent> loadDefaultData() {
         return event -> {
-            User user = userRepository.save(User.newBuilder()
+            User user1 = userRepository.save(User.newBuilder()
                     .withEmail("")
                     .withPassword("")
                     .withFirstName("Hello")
                     .withLastName("World")
                     .build());
+            User user2 = userRepository.save(User.newBuilder()
+                    .withEmail("abcdef")
+                    .withPassword("")
+                    .withFirstName("Abc")
+                    .withLastName("Bcd")
+                    .build());
+            User user3 = userRepository.save(User.newBuilder()
+                    .withEmail("ghijkl")
+                    .withPassword("")
+                    .withFirstName("Wxy")
+                    .withLastName("Xyz")
+                    .build());
+            User user4 = userRepository.save(User.newBuilder()
+                    .withEmail("noone")
+                    .withPassword("")
+                    .withFirstName("No")
+                    .withLastName("One")
+                    .build());
             listRepository.saveAll(asList(
                     TaskList.newBuilder()
                             .withName("List 1")
-                            .withOwnerId(user.getId())
+                            .withOwnerId(user1.getId())
                             .withTasks(asList(
                                     Task.newBuilder().withName("Task A").build(),
                                     Task.newBuilder().withName("Task B").withDueDate(LocalDateTime.of(2019, 7, 13, 19, 0, 0)).build(),
@@ -78,25 +96,35 @@ class PostStartupConfiguration {
                             .build(),
                     TaskList.newBuilder()
                             .withName("List 2")
-                            .withOwnerId(user.getId())
+                            .withOwnerId(user1.getId())
                             .withTasks(asList(
                                     Task.newBuilder().withName("Task G").build(),
                                     Task.newBuilder().withName("Task H").build()
                             ))
                             .build()
             ));
-            Team team = teamRepository.save(Team.newBuilder()
-                    .withName("Team")
-                    .withMembers(singletonList(
-                            TeamMember.newBuilder()
-                                    .withId(user.getId())
-                                    .build()))
-                    .build());
+            List<Team> team = teamRepository.saveAll(asList(
+                    Team.newBuilder()
+                            .withName("Team")
+                            .withMembers(asList(
+                                    TeamMember.newBuilder().withId(user1.getId()).build(),
+                                    TeamMember.newBuilder().withId(user2.getId()).build(),
+                                    TeamMember.newBuilder().withId(user3.getId()).build()))
+                            .build(),
+                    Team.newBuilder().withName("Another Team").withMembers(emptyList()).build(),
+                    Team.newBuilder().withName("And Another Team").withMembers(emptyList()).build(),
+                    Team.newBuilder().withName("Yet Again Another Team").withMembers(emptyList()).build(),
+                    Team.newBuilder().withName("Another Blah Team").withMembers(emptyList()).build(),
+                    Team.newBuilder().withName("Heck Another Team").withMembers(emptyList()).build()
+            ));
 
             listRepository.save(TaskList.newBuilder()
                     .withName("Team List 1")
-                    .withOwnerId(team.getId())
-                    .withTasks(emptyList())
+                    .withOwnerId(team.get(0).getId())
+                    .withTasks(asList(
+                            Task.newBuilder().withName("Assigned to you").withAssignedUser(user1.getId()).build(),
+                            Task.newBuilder().withName("Assigned to someone else").withAssignedUser(user3.getId()).build(),
+                            Task.newBuilder().withName("Assigned to no one").build()))
                     .build());
         };
     }

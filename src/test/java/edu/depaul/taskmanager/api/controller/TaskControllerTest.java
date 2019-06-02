@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static java.util.Arrays.asList;
@@ -26,7 +27,7 @@ public class TaskControllerTest {
     private TaskListService taskListService;
 
     private TaskList list = TaskList.newBuilder().withId("5678").withName("To Do List").withOwnerId("1234").build();
-    private Task task1 = Task.newBuilder().withName("Task 1").build();
+    private Task task1 = Task.newBuilder().withName("Task 1").withDueDate(LocalDateTime.now()).withAssignedUser("1234").build();
     private Task task2 = Task.newBuilder().withName("Task 2").build();
     private TaskList listWithTasks = TaskList.newBuilder(list).withTasks(asList(task1, task2)).build();
     private Task taskToAdd = Task.newBuilder().withName("New Task").build();

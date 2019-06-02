@@ -6,6 +6,7 @@ import java.util.Objects;
 public class Task {
     private String name;
     private LocalDateTime dueDate;
+    private String assignedUser;
     private CompletionDetails completionDetails;
 
     public Task() {
@@ -14,6 +15,7 @@ public class Task {
     private Task(Builder builder) {
         name = builder.name;
         dueDate = builder.dueDate;
+        assignedUser = builder.assignedUser;
         completionDetails = builder.completionDetails;
     }
 
@@ -29,6 +31,10 @@ public class Task {
         return dueDate;
     }
 
+    public String getAssignedUser() {
+        return assignedUser;
+    }
+
     public CompletionDetails getCompletionDetails() {
         return completionDetails;
     }
@@ -38,6 +44,7 @@ public class Task {
         return "Task{" +
                 "name='" + name + '\'' +
                 ", dueDate=" + dueDate +
+                ", assignedUser='" + assignedUser + '\'' +
                 ", completionDetails=" + completionDetails +
                 '}';
     }
@@ -49,17 +56,19 @@ public class Task {
         Task task = (Task) o;
         return Objects.equals(name, task.name) &&
                 Objects.equals(dueDate, task.dueDate) &&
+                Objects.equals(assignedUser, task.assignedUser) &&
                 Objects.equals(completionDetails, task.completionDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, dueDate, completionDetails);
+        return Objects.hash(name, dueDate, assignedUser, completionDetails);
     }
 
     public static final class Builder {
         private String name;
         private LocalDateTime dueDate;
+        private String assignedUser;
         private CompletionDetails completionDetails;
 
         private Builder() {
@@ -72,6 +81,11 @@ public class Task {
 
         public Builder withDueDate(LocalDateTime val) {
             dueDate = val;
+            return this;
+        }
+
+        public Builder withAssignedUser(String val) {
+            this.assignedUser = val;
             return this;
         }
 
