@@ -2,7 +2,6 @@ package edu.depaul.taskmanager.api.model;
 
 import org.springframework.data.annotation.Id;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -13,6 +12,8 @@ public class TaskList {
     private String ownerId;
     private List<Task> tasks;
 
+    private String listType = "list";
+
     public TaskList() {
     }
 
@@ -21,6 +22,7 @@ public class TaskList {
         name = builder.name;
         ownerId = builder.ownerId;
         tasks = builder.tasks;
+        listType = builder.listType;
     }
 
     public static Builder newBuilder() {
@@ -33,6 +35,7 @@ public class TaskList {
         builder.name = copy.getName();
         builder.ownerId = copy.getOwnerId();
         builder.tasks = copy.getTasks();
+        builder.listType = copy.getListType();
         return builder;
     }
 
@@ -52,6 +55,10 @@ public class TaskList {
         return tasks;
     }
 
+    public String getListType() {
+        return listType;
+    }
+
     @Override
     public String toString() {
         return "TaskList{" +
@@ -59,23 +66,26 @@ public class TaskList {
                 ", name='" + name + '\'' +
                 ", ownerId='" + ownerId + '\'' +
                 ", tasks=" + tasks +
+                ", listType=" + listType +
                 '}';
+
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TaskList that = (TaskList) o;
-        return Objects.equals(id, that.id) &&
-                Objects.equals(name, that.name) &&
-                Objects.equals(ownerId, that.ownerId) &&
-                Objects.equals(tasks, that.tasks);
+        TaskList taskList = (TaskList) o;
+        return Objects.equals(id, taskList.id) &&
+                Objects.equals(name, taskList.name) &&
+                Objects.equals(ownerId, taskList.ownerId) &&
+                Objects.equals(tasks, taskList.tasks) &&
+                listType == taskList.listType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, ownerId, tasks);
+        return Objects.hash(id, name, ownerId, tasks, listType);
     }
 
     public static final class Builder {
@@ -83,27 +93,33 @@ public class TaskList {
         private String name;
         private String ownerId;
         private List<Task> tasks;
+        private String listType = "list";
 
         private Builder() {
         }
 
-        public Builder withId(String id) {
-            this.id = id;
+        public Builder withId(String val) {
+            id = val;
             return this;
         }
 
-        public Builder withName(String name) {
-            this.name = name;
+        public Builder withName(String val) {
+            name = val;
             return this;
         }
 
-        public Builder withOwnerId(String ownerId) {
-            this.ownerId = ownerId;
+        public Builder withOwnerId(String val) {
+            ownerId = val;
             return this;
         }
 
-        public Builder withTasks(List<Task> tasks) {
-            this.tasks = tasks;
+        public Builder withTasks(List<Task> val) {
+            tasks = val;
+            return this;
+        }
+
+        public Builder withListType(String val) {
+            listType = val;
             return this;
         }
 

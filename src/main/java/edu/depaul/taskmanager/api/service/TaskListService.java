@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 
@@ -22,20 +23,31 @@ public class TaskListService {
         this.taskListRepository = taskListRepository;
     }
 
-    public TaskList createPersonalList(String userId, String listName) {
-        return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(userId).withTasks(emptyList()).build());
+    public TaskList createPersonalList(String userId, TaskList newTaskList) {
+        return taskListRepository.save(TaskList.newBuilder(newTaskList).withOwnerId(userId).withTasks(emptyList()).build());
     }
 
     public TaskList createTeamList(String teamId, String listName) {
         return taskListRepository.save(TaskList.newBuilder().withName(listName).withOwnerId(teamId).withTasks(emptyList()).build());
     }
 
+    public TaskList createTeamList(String teamId, TaskList newList) {
+        return taskListRepository.save(TaskList.newBuilder(newList).withOwnerId(teamId).withTasks(emptyList()).build());
+    }
+
     public List<TaskList> getAllPersonalLists(String userId) {
         return taskListRepository.findByOwnerId(userId);
     }
 
-    public List<TaskList> getAllTeamLists(String teamId) {
+    private List<TaskList> getAllTeamLists(String teamId) {
         return taskListRepository.findByOwnerId(teamId);
+    }
+
+    public List<TaskList> getAllTeamListsByType(String teamId, String type) {
+        return getAllTeamLists(teamId)
+                .stream()
+                .filter(list -> list.getListType().equals(type))
+                .collect(Collectors.toList());
     }
 
     public List<Task> getTasksInList(String listId) {

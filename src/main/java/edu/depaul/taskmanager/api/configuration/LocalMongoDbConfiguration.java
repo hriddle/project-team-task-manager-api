@@ -119,8 +119,18 @@ class PostStartupConfiguration {
             ));
 
             listRepository.save(TaskList.newBuilder()
-                    .withName("Team List 1")
+                    .withName("Legacy Team List")
                     .withOwnerId(team.get(0).getId())
+                    .withTasks(asList(
+                            Task.newBuilder().withName("Assigned to you").withAssignedUser(user1.getId()).build(),
+                            Task.newBuilder().withName("Assigned to someone else").withAssignedUser(user3.getId()).build(),
+                            Task.newBuilder().withName("Assigned to no one").build()))
+                    .build());
+
+            listRepository.save(TaskList.newBuilder()
+                    .withName("New Team List")
+                    .withOwnerId(team.get(0).getId())
+                    .withListType("list")
                     .withTasks(asList(
                             Task.newBuilder().withName("Assigned to you").withAssignedUser(user1.getId()).build(),
                             Task.newBuilder().withName("Assigned to someone else").withAssignedUser(user3.getId()).build(),

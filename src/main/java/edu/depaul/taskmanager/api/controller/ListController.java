@@ -3,11 +3,7 @@ package edu.depaul.taskmanager.api.controller;
 import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.service.TaskListService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
@@ -22,8 +18,8 @@ public class ListController {
     }
 
     @PostMapping("/users/{userId}/lists")
-    public ResponseEntity<TaskList> createPersonalList(@PathVariable String userId, @RequestBody String listName, UriComponentsBuilder uriComponentsBuilder) {
-        TaskList list = taskListService.createPersonalList(userId, listName);
+    public ResponseEntity<TaskList> createPersonalList(@PathVariable String userId, @RequestBody TaskList newTaskList, UriComponentsBuilder uriComponentsBuilder) {
+        TaskList list = taskListService.createPersonalList(userId, newTaskList);
         return ResponseEntity
                 .created(uriComponentsBuilder.path("/users/{userId}/lists/{listId}").buildAndExpand(userId, list.getId()).toUri())
                 .body(list);
@@ -36,14 +32,14 @@ public class ListController {
     }
 
     @GetMapping("/teams/{teamId}/lists")
-    public ResponseEntity<List<TaskList>> getTeamLists(@PathVariable String teamId) {
-        List<TaskList> lists = taskListService.getAllTeamLists(teamId);
+    public ResponseEntity<List<TaskList>> getTeamLists(@PathVariable String teamId, @RequestParam(defaultValue = "list") String type) {
+        List<TaskList> lists = taskListService.getAllTeamListsByType(teamId, type);
         return ResponseEntity.ok().body(lists);
     }
 
     @PostMapping("/teams/{teamId}/lists")
-    public ResponseEntity<TaskList> createTeamList(@PathVariable String teamId, @RequestBody String listName, UriComponentsBuilder uriComponentsBuilder) {
-        TaskList list = taskListService.createTeamList(teamId, listName);
+    public ResponseEntity<TaskList> createTeamList(@PathVariable String teamId, @RequestBody TaskList newList, UriComponentsBuilder uriComponentsBuilder) {
+        TaskList list = taskListService.createTeamList(teamId, newList);
         return ResponseEntity
                 .created(uriComponentsBuilder.path("/teams/{teamId}/lists/{listId}").buildAndExpand(teamId, list.getId()).toUri())
                 .body(list);
