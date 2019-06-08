@@ -32,6 +32,10 @@ public class TeamService {
         return teamRepository.save(team);
     }
 
+    public Optional<Team> findTeamById(String teamId){
+        return teamRepository.findById(teamId);
+    }
+
     public Team addTeamMember(String teamID, String newMemberID) {
         Optional<Team> tempTeam = teamRepository.findById(teamID);
         if (tempTeam.isPresent()) {

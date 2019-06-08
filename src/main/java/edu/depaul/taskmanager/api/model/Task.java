@@ -23,6 +23,15 @@ public class Task {
         return new Builder();
     }
 
+    public static Builder newBuilder(Task copy) {
+        Builder builder = new Builder();
+        builder.name = copy.getName();
+        builder.dueDate = copy.getDueDate();
+        builder.assignedUser = copy.getAssignedUser();
+        builder.completionDetails = copy.getCompletionDetails();
+        return builder;
+    }
+
     public String getName() {
         return name;
     }

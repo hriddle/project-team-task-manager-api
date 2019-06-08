@@ -39,7 +39,7 @@ public class TaskListService {
         return taskListRepository.findByOwnerId(userId);
     }
 
-    private List<TaskList> getAllTeamLists(String teamId) {
+    public List<TaskList> getAllTeamLists(String teamId) {
         return taskListRepository.findByOwnerId(teamId);
     }
 
@@ -67,6 +67,10 @@ public class TaskListService {
         } else {
             return null;
         }
+    }
+
+    public List<TaskList> saveTaskLists(List<TaskList> taskLists) {
+        return taskListRepository.saveAll(taskLists);
     }
 
     public Task updateTask(String listId, int index, Task task) {

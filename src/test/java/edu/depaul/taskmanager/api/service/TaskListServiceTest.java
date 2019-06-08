@@ -16,9 +16,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Optional.of;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class TaskListServiceTest {
 
@@ -87,15 +85,27 @@ public class TaskListServiceTest {
     }
 
     @Test
-    public void getAllTeamLists_callsRepository() {
+    public void getAllTeamListsByType_callsRepository() {
         service.getAllTeamListsByType(taskList.getId(), listType);
         verify(repository).findByOwnerId(taskList.getId());
     }
 
     @Test
-    public void getAllTeamLists_returnsAList_andFiltersLists() {
+    public void getAllTeamListsByType_returnsAList_andFiltersLists() {
         List<TaskList> lists = service.getAllTeamListsByType(taskList.getId(), listType);
         assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList);
+    }
+
+    @Test
+    public void getAllTeamLists_callsRepository() {
+        service.getAllTeamLists(taskList.getId());
+        verify(repository).findByOwnerId(taskList.getId());
+    }
+
+    @Test
+    public void getAllTeamLists_returnsAList_andFiltersLists() {
+        List<TaskList> lists = service.getAllTeamLists(taskList.getId());
+        assertThat(lists).containsExactlyInAnyOrder(taskList, anotherTaskList, badTaskList);
     }
 
     @Test
@@ -184,5 +194,12 @@ public class TaskListServiceTest {
 
         service.deleteTask(taskListWithTasks.getId(), 1);
         verify(repository).save(TaskList.newBuilder(taskListWithTasks).withTasks(singletonList(task1)).build());
+    }
+
+    @Test
+    public void saveTaskList_callsRepositorySave() {
+        service.saveTaskLists(asList(newTaskList, taskList, anotherTaskList, badTaskList));
+        verify(repository).saveAll(asList(newTaskList, taskList, anotherTaskList, badTaskList));
+
     }
 }

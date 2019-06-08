@@ -3,6 +3,7 @@ package edu.depaul.taskmanager.api.controller;
 import edu.depaul.taskmanager.api.model.Team;
 import edu.depaul.taskmanager.api.model.TeamMember;
 import edu.depaul.taskmanager.api.model.TeamMemberDetail;
+import edu.depaul.taskmanager.api.service.DeleteMemberService;
 import edu.depaul.taskmanager.api.service.TeamService;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -21,8 +22,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,6 +30,7 @@ public class TeamControllerTest {
 
     private TeamController teamController;
     private TeamService mockTeamService;
+    private DeleteMemberService mockDeleteMemberService;
     private UriComponentsBuilder uriComponentsBuilder;
     private MockMvc mockMvc;
     private Team requestTeam = Team.newBuilder()
@@ -50,7 +51,8 @@ public class TeamControllerTest {
     public void setUp() throws Exception {
         uriComponentsBuilder = UriComponentsBuilder.newInstance();
         mockTeamService = mock(TeamService.class);
-        teamController = new TeamController(mockTeamService);
+        mockDeleteMemberService = mock(DeleteMemberService.class);
+        teamController = new TeamController(mockDeleteMemberService, mockTeamService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(teamController).build();
 
@@ -144,5 +146,17 @@ public class TeamControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id", CoreMatchers.equalTo("123")))
                 .andExpect(jsonPath("$[1].id", CoreMatchers.equalTo("456")));
+    }
+
+    @Test
+    public void removeMember_callsDeleteMemberService() {
+        teamController.removeMember("team-id", "member-id");
+        verify(mockDeleteMemberService).removeTeamMember("team-id", "member-id");
+    }
+
+    @Test
+    public void removeMember_acceptsNetworkRequests() throws Exception {
+        mockMvc.perform(delete("/teams/123/456"))
+                .andExpect(status().isNoContent());
     }
 }

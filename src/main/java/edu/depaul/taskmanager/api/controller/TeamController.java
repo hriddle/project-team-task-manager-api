@@ -1,8 +1,8 @@
 package edu.depaul.taskmanager.api.controller;
 
 import edu.depaul.taskmanager.api.model.Team;
-import edu.depaul.taskmanager.api.model.TeamMember;
 import edu.depaul.taskmanager.api.model.TeamMemberDetail;
+import edu.depaul.taskmanager.api.service.DeleteMemberService;
 import edu.depaul.taskmanager.api.service.TeamService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,12 @@ import java.util.List;
 @RequestMapping("/teams")
 public class TeamController {
 
+    private DeleteMemberService deleteMemberService;
     private TeamService teamService;
 
     @Autowired
-    public TeamController(TeamService teamService) {
+    public TeamController(DeleteMemberService deleteMemberService, TeamService teamService) {
+        this.deleteMemberService = deleteMemberService;
         this.teamService = teamService;
     }
 
@@ -46,6 +48,12 @@ public class TeamController {
         return ResponseEntity.created(uriComponentsBuilder.path("/teams/{teamId}")
                 .buildAndExpand(updatedTeam.getId()).toUri())
                 .body(updatedTeam);
+    }
+
+    @DeleteMapping("/{teamID}/{memberID}")
+    public ResponseEntity removeMember(@PathVariable String teamID, @PathVariable String memberID) {
+        deleteMemberService.removeTeamMember(teamID, memberID);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{teamId}/members")
