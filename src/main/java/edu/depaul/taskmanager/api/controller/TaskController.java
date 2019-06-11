@@ -1,6 +1,7 @@
 package edu.depaul.taskmanager.api.controller;
 
 import edu.depaul.taskmanager.api.model.Task;
+import edu.depaul.taskmanager.api.model.TaskList;
 import edu.depaul.taskmanager.api.service.TaskListService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
@@ -21,6 +22,12 @@ public class TaskController {
 
     public TaskController(TaskListService taskListService) {
         this.taskListService = taskListService;
+    }
+
+    @GetMapping("/lists/tasks")
+    public ResponseEntity<List<TaskList>> getAllTeamTasksByUserId(@RequestParam(required = false) String userId) {
+        List<TaskList> tasks = taskListService.getAllTeamTasksByUserId(userId);
+        return ResponseEntity.ok().body(tasks);
     }
 
     @GetMapping("/lists/{listId}/tasks")
