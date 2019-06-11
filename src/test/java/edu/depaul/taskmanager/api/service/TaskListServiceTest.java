@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class TaskListServiceTest {
-
+    private TeamService teamService;
     private TaskListService service;
     private TaskListRepository repository;
 
@@ -41,7 +41,8 @@ public class TaskListServiceTest {
     @Before
     public void setUp() {
         repository = mock(TaskListRepository.class);
-        service = new TaskListService(repository);
+        teamService = mock(TeamService.class);
+        service = new TaskListService(teamService, repository);
 
         when(repository.save(any())).thenReturn(taskList);
         when(repository.findByOwnerId(any())).thenReturn(Arrays.asList(taskList, anotherTaskList, badTaskList));
